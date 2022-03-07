@@ -1,24 +1,14 @@
-# Glow Protocol Contracts
+# Ve Token Contracts
 
-This monorepository contains the source code for the core smart contracts implementing Glow Protocol on the [Terra](https://terra.money) blockchain.
-
-You can find information about the architecture, usage, and function of the smart contracts on the official Glow documentation [site](https://docs.glowyield.com/).
-
-### Dependencies
-
-Glow depends on [Anchor Protocol](https://anchorprotocol.com) and [Terraswap](https://terraswap.io) and uses its [implementation](https://github.com/terraswap/terraswap) of the CW20 token specification.
+This monorepository contains the source code for the core smart contracts implementing ve token contracts in Cosmwasm.
 
 ## Contracts
 
-| Contract                                            | Reference                                               | Description                                                                                                          |
-| --------------------------------------------------- |---------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
-| [`lotto`](./contracts/lotto)  | [doc](https://docs.glowyield.com/contracts/lotto)       | Glow Lotto, a prize-linked savings accounts built on top of Anchor money-market                                      |
-| [`community`](./contracts/community) | [doc](https://docs.glowyield.com/contracts/community)   | Manages the Glow Ecosystem Fund (GEF)                                                                                |
-| [`gov`](./contracts/gov)              | [doc](https://docs.glowyield.com/contracts/gov)         | Allows Glow contracts to be controlled by decentralized governance and distributes protocol revenues to GLOW stakers |
-| [`staking`](./contracts/staking)      | [doc](https://docs.glowyield.com/contracts/staking)     | Distributes GLOW rewards to to LP stakers                                                                            |
-| [`distibutor`](./contracts/distributor)      | [doc](https://docs.glowyield.com/contracts/distributor) | Distributes GLOW rewards to users of Glow protocol based on a dynamic emission rate algorithm                        |
-| [`airdrop`](./contracts/airdrop)      | [doc](https://docs.glowyield.com/contracts/airdrop)     | Distributes GLOW to selected addresses at the token genesis event                                                    |
-| [`vesting`](./contracts/vesting)      | [doc](https://docs.glowyield.com/contracts/vesting)               | Distributes GLOW over time to founding team, investors and contributors                                              |
+| Contract                                 | Reference                                                                                         | Description                                                                    |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| [`ve-token`](./contracts/ve-token)         | [doc](./contracts/ve-token)   | ve token implementation which allows users to lock up their own tokens as a sign of commitment                   |
+| [`fee-distributor`](./contracts/fee-distributor)     | [doc](./contracts/fee-distributor) | Accumulates protocol fees and distributes them prorata to ve token holders |
+| [`gov`](../contracts/gov)    | [doc](../contracts/gov) | Gov contract for on chain governance that reads from ve token balances for measuring voting power                                                   |
 
 ## Development
 

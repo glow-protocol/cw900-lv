@@ -87,9 +87,6 @@ pub struct MigrateMsg {
 pub enum QueryMsg {
     Config {},
     State {},
-    Staker {
-        address: String,
-    },
     Poll {
         poll_id: u64,
     },
@@ -154,13 +151,6 @@ pub struct PollsResponse {
 #[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
 pub struct PollCountResponse {
     pub poll_count: u64,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema)]
-pub struct StakerResponse {
-    pub balance: Uint128,
-    pub share: Uint128,
-    pub locked_balance: Vec<(u64, VoterInfo)>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema)]

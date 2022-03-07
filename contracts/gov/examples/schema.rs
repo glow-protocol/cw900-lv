@@ -2,9 +2,8 @@ use cosmwasm_schema::{export_schema, remove_schemas, schema_for};
 use std::env::current_dir;
 use std::fs::create_dir_all;
 
-use glow_protocol::gov::{
-    ConfigResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, PollResponse, QueryMsg,
-    StakerResponse, StateResponse,
+use cw900::gov::{
+    ConfigResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, PollResponse, QueryMsg, StateResponse,
 };
 
 fn main() {
@@ -17,7 +16,6 @@ fn main() {
     export_schema(&schema_for!(ExecuteMsg), &out_dir);
     export_schema(&schema_for!(Cw20HookMsg), &out_dir);
     export_schema(&schema_for!(QueryMsg), &out_dir);
-    export_schema(&schema_for!(StakerResponse), &out_dir);
     export_schema(&schema_for!(ConfigResponse), &out_dir);
     export_schema(&schema_for!(StateResponse), &out_dir);
     export_schema(&schema_for!(PollResponse), &out_dir);

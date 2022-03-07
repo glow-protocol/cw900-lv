@@ -6,8 +6,8 @@ use cosmwasm_storage::{
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use glow_protocol::common::OrderBy;
-use glow_protocol::gov::{PollStatus, VoterInfo};
+use cw900::common::OrderBy;
+use cw900::gov::{PollStatus, VoterInfo};
 use std::cmp::Ordering;
 
 static KEY_CONFIG: &[u8] = b"config";
@@ -16,21 +16,6 @@ static KEY_STATE: &[u8] = b"state";
 static PREFIX_POLL_INDEXER: &[u8] = b"poll_indexer";
 static PREFIX_POLL_VOTER: &[u8] = b"poll_voter";
 static PREFIX_POLL: &[u8] = b"poll";
-static PREFIX_BANK: &[u8] = b"bank";
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub struct OldConfig {
-    pub owner: CanonicalAddr,
-    pub glow_token: CanonicalAddr,
-    pub terraswap_factory: CanonicalAddr,
-    pub quorum: Decimal,
-    pub threshold: Decimal,
-    pub voting_period: u64,
-    pub timelock_period: u64,
-    pub expiration_period: u64,
-    pub proposal_deposit: Uint128,
-    pub snapshot_period: u64,
-}
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct Config {
@@ -108,10 +93,6 @@ impl PartialEq for ExecuteData {
 
 pub fn config_store(storage: &mut dyn Storage) -> Singleton<Config> {
     singleton(storage, KEY_CONFIG)
-}
-
-pub fn old_config_read(storage: &dyn Storage) -> ReadonlySingleton<OldConfig> {
-    singleton_read(storage, KEY_CONFIG)
 }
 
 pub fn config_read(storage: &dyn Storage) -> ReadonlySingleton<Config> {
@@ -217,14 +198,6 @@ pub fn read_polls<'a>(
             })
             .collect()
     }
-}
-
-pub fn bank_store(storage: &mut dyn Storage) -> Bucket<TokenManager> {
-    bucket(storage, PREFIX_BANK)
-}
-
-pub fn bank_read(storage: &dyn Storage) -> ReadonlyBucket<TokenManager> {
-    bucket_read(storage, PREFIX_BANK)
 }
 
 // this will set the first key after the provided key, by appending a 1 byte

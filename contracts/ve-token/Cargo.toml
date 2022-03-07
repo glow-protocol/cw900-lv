@@ -37,7 +37,7 @@ backtraces = ["cosmwasm-std/backtraces"]
 cw20 = "0.8.0"
 cosmwasm-std = "0.16.3"
 cosmwasm-storage = "0.16.3"
-glow-protocol = { version = "1.0.0", path = "../../packages/glow_protocol" }
+cw900 = { version = "1.0.0", path = "../../packages/cw900" }
 schemars = "0.8.1"
 serde = { version = "1.0.103", default-features = false, features = ["derive"] }
 thiserror = "1.0.20"

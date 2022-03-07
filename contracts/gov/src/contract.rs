@@ -5,11 +5,10 @@ use crate::error::ContractError;
 use crate::querier::{
     query_address_voting_balance_at_timestamp, query_total_voting_balance_at_timestamp,
 };
-use crate::staking::query_staker;
 use crate::state::{
-    config_read, config_store, old_config_read, poll_indexer_store, poll_read, poll_store,
-    poll_voter_read, poll_voter_store, read_poll_voters, read_polls, state_read, state_store,
-    Config, ExecuteData, Poll, State,
+    config_read, config_store, poll_indexer_store, poll_read, poll_store, poll_voter_read,
+    poll_voter_store, read_poll_voters, read_polls, state_read, state_store, Config, ExecuteData,
+    Poll, State,
 };
 
 use cosmwasm_std::{
@@ -18,8 +17,8 @@ use cosmwasm_std::{
 };
 use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg};
 
-use glow_protocol::common::OrderBy;
-use glow_protocol::gov::{
+use cw900::common::OrderBy;
+use cw900::gov::{
     ConfigResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, MigrateMsg, PollExecuteMsg,
     PollResponse, PollStatus, PollsResponse, QueryMsg, StateResponse, VoteOption, VoterInfo,
     VotersResponse, VotersResponseItem,
@@ -649,7 +648,6 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> Result<Binary, ContractErr
     match msg {
         QueryMsg::Config {} => Ok(to_binary(&query_config(deps)?)?),
         QueryMsg::State {} => Ok(to_binary(&query_state(deps)?)?),
-        QueryMsg::Staker { address } => Ok(to_binary(&query_staker(deps, address)?)?),
         QueryMsg::Poll { poll_id } => Ok(to_binary(&query_poll(deps, poll_id)?)?),
         QueryMsg::Polls {
             filter,
@@ -839,24 +837,6 @@ fn query_voters(
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
-pub fn migrate(deps: DepsMut, _env: Env, msg: MigrateMsg) -> StdResult<Response> {
-    let old_config = old_config_read(deps.storage).load()?;
-
-    let new_config = Config {
-        owner: old_config.owner,
-        glow_token: old_config.glow_token,
-        ve_token: deps.api.addr_canonicalize(&msg.ve_token)?,
-        terraswap_factory: old_config.terraswap_factory,
-        quorum: old_config.quorum,
-        threshold: old_config.threshold,
-        voting_period: old_config.voting_period,
-        timelock_period: old_config.timelock_period,
-        expiration_period: old_config.expiration_period,
-        proposal_deposit: old_config.proposal_deposit,
-        snapshot_period: old_config.snapshot_period,
-    };
-
-    config_store(deps.storage).save(&new_config)?;
-
+pub fn migrate(_deps: DepsMut, _env: Env, _msg: MigrateMsg) -> StdResult<Response> {
     Ok(Response::default())
 }

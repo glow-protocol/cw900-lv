@@ -1,7 +1,7 @@
 [workspace]
 members = ["packages/*", "contracts/*"]
 
-[profile.release.package.glow-protocol]
+[profile.release.package.cw900]
 opt-level = 3
 debug = false
 debug-assertions = false

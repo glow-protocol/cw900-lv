@@ -9,8 +9,8 @@ use cosmwasm_std::{
     DepsMut, Env, Response, StdError, SubMsg, Timestamp, Uint128, WasmMsg,
 };
 use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg};
-use glow_protocol::common::OrderBy;
-use glow_protocol::gov::{
+use cw900::common::OrderBy;
+use cw900::gov::{
     ConfigResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, PollExecuteMsg, PollResponse,
     PollStatus, PollsResponse, QueryMsg, VoteOption, VoterInfo, VotersResponse, VotersResponseItem,
 };

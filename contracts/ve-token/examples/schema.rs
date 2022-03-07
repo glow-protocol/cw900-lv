@@ -2,7 +2,7 @@ use cosmwasm_schema::{export_schema, remove_schemas, schema_for};
 use std::env::current_dir;
 use std::fs::create_dir_all;
 
-use glow_protocol::ve_token::{
+use cw900::ve_token::{
     ConfigResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg, StakerResponse,
     StateResponse,
 };

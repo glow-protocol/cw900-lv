@@ -2,7 +2,6 @@ pub mod contract;
 
 mod error;
 mod querier;
-mod staking;
 mod state;
 
 #[cfg(test)]

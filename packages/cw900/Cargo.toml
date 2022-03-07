@@ -1,5 +1,5 @@
 [package]
-name = "glow-protocol"
+name = "cw900"
 version = "1.0.0"
 authors = ["Glow Protocol"]
 edition = "2018"

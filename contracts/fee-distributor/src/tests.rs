@@ -9,14 +9,14 @@ use cosmwasm_std::{
     WasmMsg,
 };
 use cw20::Cw20ExecuteMsg;
-use glow_protocol::fee_distributor::{ExecuteMsg, InstantiateMsg, QueryMsg, StakerResponse};
+use cw900::fee_distributor::{ExecuteMsg, InstantiateMsg, QueryMsg, StakerResponse};
 
 const VOTING_TOKEN: &str = "voting_token";
 const VE_TOKEN: &str = "ve_token";
 const TERRASWAP_FACTORY: &str = "terraswap_factory";
 const TEST_CREATOR: &str = "creator";
 const TEST_VOTER: &str = "voter1";
-// const TEST_VOTER_2: &str = "voter2";
+const TEST_VOTER_2: &str = "voter2";
 const BLOCKS_PER_SECOND: f64 = 0.16;
 
 fn increase_env_time(env: &mut Env, increase_time: u64) {
@@ -212,58 +212,47 @@ fn distribute_glow_to_voter() {
 }
 
 #[test]
-fn distribute_glow_to_voter_2() {
+fn many_distribute_glow_to_voter() {
     let mut deps = mock_dependencies(&[]);
     mock_instantiate(deps.as_mut());
     mock_register_contracts(deps.as_mut());
     let mut env = mock_env_height(0, 1000000);
     let info = mock_info(VOTING_TOKEN, &[]);
 
-    deps.querier.with_token_balances(&[
-        (
-            &VOTING_TOKEN.to_string(),
-            &[(&MOCK_CONTRACT_ADDR.to_string(), &Uint128::from(10u128))],
-        ),
-        (
-            &VE_TOKEN.to_string(),
-            &[(&TEST_VOTER.to_string(), &Uint128::from(100u128))],
-        ),
-    ]);
+    for i in 2..=101 {
+        // Increase the clock by a week
+        increase_env_time(&mut env, SECONDS_PER_WEEK);
 
-    let distribute_msg = ExecuteMsg::DistributeGlow {};
-    let _execute_res = execute(deps.as_mut(), env.clone(), info, distribute_msg).unwrap();
-
-    // Increase the clock by a week to get things going
-
-    increase_env_time(&mut env, SECONDS_PER_WEEK);
-
-    // Verify that the voter has a minimum balance of 10
-
-    let res = query(
-        deps.as_ref(),
-        env.clone(),
-        QueryMsg::Staker {
-            address: TEST_VOTER.to_string(),
-            fee_start_after: None,
-            fee_limit: None,
-        },
-    )
-    .unwrap();
-    let response: StakerResponse = from_binary(&res).unwrap();
-    assert_eq!(
-        response,
-        StakerResponse {
-            balance: Uint128::from(100u128),
-            initial_last_claimed_fee_timestamp: 0,
-            last_claimed_fee_timestamp: 1000000 / SECONDS_PER_WEEK * SECONDS_PER_WEEK,
-            claimable_fees_lower_bound: Uint128::from(10u128)
+        if (i + 1) % 2 == 0 {
+            continue;
         }
-    );
+
+        // Contract address token
+        // Goes up by 20 everytime
+        deps.querier.with_token_balances(&[
+            (
+                &VOTING_TOKEN.to_string(),
+                &[(&MOCK_CONTRACT_ADDR.to_string(), &Uint128::from(10u128 * i))],
+            ),
+            (
+                &VE_TOKEN.to_string(),
+                &[
+                    (&TEST_VOTER.to_string(), &Uint128::from(100u128)),
+                    (&"others".to_string(), &Uint128::from(100u128)),
+                ],
+            ),
+        ]);
+
+        let distribute_msg = ExecuteMsg::DistributeGlow {};
+        let _execute_res =
+            execute(deps.as_mut(), env.clone(), info.clone(), distribute_msg).unwrap();
+    }
+    // Increase the clock by a week
+    increase_env_time(&mut env, SECONDS_PER_WEEK);
 
     // Try to claim
 
     let info = mock_info(TEST_VOTER, &[]);
-
     let claim_msg = ExecuteMsg::Claim { limit: None };
     let execute_res = execute(deps.as_mut(), env.clone(), info, claim_msg).unwrap();
 
@@ -274,9 +263,208 @@ fn distribute_glow_to_voter_2() {
             funds: vec![],
             msg: to_binary(&Cw20ExecuteMsg::Transfer {
                 recipient: TEST_VOTER.to_string(),
-                amount: Uint128::from(10u128),
+                amount: Uint128::from(20 * 20u128 / 2),
             })
             .unwrap(),
         }))]
-    )
+    );
+
+    let info = mock_info(TEST_VOTER, &[]);
+    let claim_msg = ExecuteMsg::Claim { limit: None };
+    let execute_res = execute(deps.as_mut(), env.clone(), info, claim_msg).unwrap();
+
+    assert_eq!(
+        execute_res.messages,
+        vec![SubMsg::new(CosmosMsg::Wasm(WasmMsg::Execute {
+            contract_addr: VOTING_TOKEN.to_string(),
+            funds: vec![],
+            msg: to_binary(&Cw20ExecuteMsg::Transfer {
+                recipient: TEST_VOTER.to_string(),
+                amount: Uint128::from(20 * 20u128 / 2),
+            })
+            .unwrap(),
+        }))]
+    );
+
+    let info = mock_info(TEST_VOTER, &[]);
+    let claim_msg = ExecuteMsg::Claim { limit: None };
+    let execute_res = execute(deps.as_mut(), env.clone(), info, claim_msg).unwrap();
+
+    assert_eq!(
+        execute_res.messages,
+        vec![SubMsg::new(CosmosMsg::Wasm(WasmMsg::Execute {
+            contract_addr: VOTING_TOKEN.to_string(),
+            funds: vec![],
+            msg: to_binary(&Cw20ExecuteMsg::Transfer {
+                recipient: TEST_VOTER.to_string(),
+                amount: Uint128::from(10 * 20u128 / 2),
+            })
+            .unwrap(),
+        }))]
+    );
+
+    let info = mock_info(TEST_VOTER, &[]);
+    let claim_msg = ExecuteMsg::Claim { limit: None };
+    let execute_res = execute(deps.as_mut(), env.clone(), info, claim_msg).unwrap();
+
+    assert_eq!(execute_res.messages, vec![]);
+}
+
+#[test]
+fn many_distribute_glow_to_two_voters() {
+    let mut deps = mock_dependencies(&[]);
+    mock_instantiate(deps.as_mut());
+    mock_register_contracts(deps.as_mut());
+    let mut env = mock_env_height(0, 1000000);
+    let info = mock_info(VOTING_TOKEN, &[]);
+
+    for i in 2..=101 {
+        // Increase the clock by a week
+        increase_env_time(&mut env, SECONDS_PER_WEEK);
+
+        if (i + 1) % 2 == 0 {
+            continue;
+        }
+
+        // Contract address token
+        // Goes up by 20 everytime
+        deps.querier.with_token_balances(&[
+            (
+                &VOTING_TOKEN.to_string(),
+                &[(&MOCK_CONTRACT_ADDR.to_string(), &Uint128::from(10u128 * i))],
+            ),
+            (
+                &VE_TOKEN.to_string(),
+                &[
+                    (&TEST_VOTER.to_string(), &Uint128::from(100u128)),
+                    (&TEST_VOTER_2.to_string(), &Uint128::from(100u128)),
+                    (&"others".to_string(), &Uint128::from(200u128)),
+                ],
+            ),
+        ]);
+
+        let distribute_msg = ExecuteMsg::DistributeGlow {};
+        let _execute_res =
+            execute(deps.as_mut(), env.clone(), info.clone(), distribute_msg).unwrap();
+    }
+    // Increase the clock by a week
+    increase_env_time(&mut env, SECONDS_PER_WEEK);
+
+    // Try to claim voter 1
+
+    let info = mock_info(TEST_VOTER, &[]);
+    let claim_msg = ExecuteMsg::Claim { limit: None };
+    let execute_res = execute(deps.as_mut(), env.clone(), info, claim_msg).unwrap();
+
+    assert_eq!(
+        execute_res.messages,
+        vec![SubMsg::new(CosmosMsg::Wasm(WasmMsg::Execute {
+            contract_addr: VOTING_TOKEN.to_string(),
+            funds: vec![],
+            msg: to_binary(&Cw20ExecuteMsg::Transfer {
+                recipient: TEST_VOTER.to_string(),
+                amount: Uint128::from(20 * 20u128 / 4),
+            })
+            .unwrap(),
+        }))]
+    );
+
+    let info = mock_info(TEST_VOTER, &[]);
+    let claim_msg = ExecuteMsg::Claim { limit: None };
+    let execute_res = execute(deps.as_mut(), env.clone(), info, claim_msg).unwrap();
+
+    assert_eq!(
+        execute_res.messages,
+        vec![SubMsg::new(CosmosMsg::Wasm(WasmMsg::Execute {
+            contract_addr: VOTING_TOKEN.to_string(),
+            funds: vec![],
+            msg: to_binary(&Cw20ExecuteMsg::Transfer {
+                recipient: TEST_VOTER.to_string(),
+                amount: Uint128::from(20 * 20u128 / 4),
+            })
+            .unwrap(),
+        }))]
+    );
+
+    let info = mock_info(TEST_VOTER, &[]);
+    let claim_msg = ExecuteMsg::Claim { limit: None };
+    let execute_res = execute(deps.as_mut(), env.clone(), info, claim_msg).unwrap();
+
+    assert_eq!(
+        execute_res.messages,
+        vec![SubMsg::new(CosmosMsg::Wasm(WasmMsg::Execute {
+            contract_addr: VOTING_TOKEN.to_string(),
+            funds: vec![],
+            msg: to_binary(&Cw20ExecuteMsg::Transfer {
+                recipient: TEST_VOTER.to_string(),
+                amount: Uint128::from(10 * 20u128 / 4),
+            })
+            .unwrap(),
+        }))]
+    );
+
+    let info = mock_info(TEST_VOTER, &[]);
+    let claim_msg = ExecuteMsg::Claim { limit: None };
+    let execute_res = execute(deps.as_mut(), env.clone(), info, claim_msg).unwrap();
+
+    assert_eq!(execute_res.messages, vec![]);
+
+    // Try to claim voter 2
+
+    let info = mock_info(TEST_VOTER_2, &[]);
+    let claim_msg = ExecuteMsg::Claim { limit: None };
+    let execute_res = execute(deps.as_mut(), env.clone(), info, claim_msg).unwrap();
+
+    assert_eq!(
+        execute_res.messages,
+        vec![SubMsg::new(CosmosMsg::Wasm(WasmMsg::Execute {
+            contract_addr: VOTING_TOKEN.to_string(),
+            funds: vec![],
+            msg: to_binary(&Cw20ExecuteMsg::Transfer {
+                recipient: TEST_VOTER_2.to_string(),
+                amount: Uint128::from(20 * 20u128 / 4),
+            })
+            .unwrap(),
+        }))]
+    );
+
+    let info = mock_info(TEST_VOTER_2, &[]);
+    let claim_msg = ExecuteMsg::Claim { limit: None };
+    let execute_res = execute(deps.as_mut(), env.clone(), info, claim_msg).unwrap();
+
+    assert_eq!(
+        execute_res.messages,
+        vec![SubMsg::new(CosmosMsg::Wasm(WasmMsg::Execute {
+            contract_addr: VOTING_TOKEN.to_string(),
+            funds: vec![],
+            msg: to_binary(&Cw20ExecuteMsg::Transfer {
+                recipient: TEST_VOTER_2.to_string(),
+                amount: Uint128::from(20 * 20u128 / 4),
+            })
+            .unwrap(),
+        }))]
+    );
+
+    let info = mock_info(TEST_VOTER_2, &[]);
+    let claim_msg = ExecuteMsg::Claim { limit: None };
+    let execute_res = execute(deps.as_mut(), env.clone(), info, claim_msg).unwrap();
+
+    assert_eq!(
+        execute_res.messages,
+        vec![SubMsg::new(CosmosMsg::Wasm(WasmMsg::Execute {
+            contract_addr: VOTING_TOKEN.to_string(),
+            funds: vec![],
+            msg: to_binary(&Cw20ExecuteMsg::Transfer {
+                recipient: TEST_VOTER_2.to_string(),
+                amount: Uint128::from(10 * 20u128 / 4),
+            })
+            .unwrap(),
+        }))]
+    );
+
+    let info = mock_info(TEST_VOTER_2, &[]);
+    let claim_msg = ExecuteMsg::Claim { limit: None };
+    let execute_res = execute(deps.as_mut(), env.clone(), info, claim_msg).unwrap();
+
+    assert_eq!(execute_res.messages, vec![]);
 }

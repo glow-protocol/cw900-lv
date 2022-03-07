@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use glow_protocol::ve_token::{StakerResponse, StateResponse};
+use cw900::ve_token::{StakerResponse, StateResponse};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 

@@ -1,5 +1,6 @@
 #[cfg(not(feature = "library"))]
 use crate::error::ContractError;
+
 use crate::staking::{
     apply_pending_slope_changes_to_state, apply_pending_slope_changes_to_state_and_save_updates,
     send_tokens, update_user_lock,
@@ -16,7 +17,7 @@ use cosmwasm_std::{
 };
 use cw20::Cw20ReceiveMsg;
 
-use glow_protocol::ve_token::{
+use cw900::ve_token::{
     ConfigResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg, StakerResponse,
     StateResponse,
 };

@@ -12,7 +12,7 @@ use cosmwasm_std::{
     to_binary, Addr, CosmosMsg, DepsMut, Env, SubMsg, Timestamp, Uint128, WasmMsg,
 };
 use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg};
-use glow_protocol::ve_token::{
+use cw900::ve_token::{
     Cw20HookMsg, ExecuteMsg, InstantiateMsg, QueryMsg, StakerResponse, StateResponse,
 };
 

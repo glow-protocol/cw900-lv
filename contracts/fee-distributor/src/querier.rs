@@ -1,7 +1,7 @@
 use cosmwasm_std::Uint128;
 use cosmwasm_std::{to_binary, Addr, QuerierWrapper, QueryRequest, StdResult, WasmQuery};
 
-use glow_protocol::ve_token::{QueryMsg as VEQueryMessage, StakerResponse, StateResponse};
+use cw900::ve_token::{QueryMsg as VEQueryMessage, StakerResponse, StateResponse};
 
 pub fn query_address_voting_balance_at_timestamp(
     querier: &QuerierWrapper,

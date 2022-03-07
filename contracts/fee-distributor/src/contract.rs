@@ -18,7 +18,7 @@ use cosmwasm_std::{
 };
 use cw20::Cw20ExecuteMsg;
 
-use glow_protocol::fee_distributor::{
+use cw900::fee_distributor::{
     ConfigResponse, ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg, StakerResponse, StateResponse,
 };
 
@@ -161,16 +161,22 @@ pub fn claim(
     state.total_distributed_unclaimed_fees -= claim_amount;
     STATE.save(deps.storage, &state)?;
 
-    // Return with a message to send "claim_amount" GLOW to the calling user.
-    Ok(Response::default()
-        .add_message(CosmosMsg::Wasm(WasmMsg::Execute {
+    let messages: Vec<CosmosMsg> = if !claim_amount.is_zero() {
+        vec![CosmosMsg::Wasm(WasmMsg::Execute {
             contract_addr: config.glow_token.to_string(),
             funds: vec![],
             msg: to_binary(&Cw20ExecuteMsg::Transfer {
                 recipient: info.sender.to_string(),
                 amount: claim_amount,
             })?,
-        }))
+        })]
+    } else {
+        vec![]
+    };
+
+    // Return with a message to send "claim_amount" GLOW to the calling user.
+    Ok(Response::default()
+        .add_messages(messages)
         .add_attributes(vec![
             attr("action", "claim"),
             attr("claimed_amount", claim_amount.to_string()),
