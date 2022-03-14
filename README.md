@@ -8,7 +8,7 @@ This monorepository contains the source code for the core smart contracts implem
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | [`cw900-lv`](./contracts/cw900-lv)         | [doc](./contracts/cw900-lv)   | ve token implementation which allows users to lock up their own tokens as a sign of commitment                   |
 | [`fee-distributor`](./contracts/fee-distributor)     | [doc](./contracts/fee-distributor) | Accumulates protocol fees and distributes them prorata to ve token holders |
-| [`gov`](../contracts/gov)    | [doc](../contracts/gov) | Gov contract for on chain governance that reads from ve token balances for measuring voting power                                                   |
+| [`gov`](./contracts/gov)    | [doc](./contracts/gov) | Gov contract for on chain governance that reads from ve token balances for measuring voting power                                                   |
 
 ## Development
 
