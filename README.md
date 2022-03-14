@@ -1,12 +1,12 @@
-# Ve Token Contracts
+# CW900-lv Contracts
 
-This monorepository contains the source code for the core smart contracts implementing ve token contracts in Cosmwasm.
+This monorepository contains the source code for the core smart contracts implementing CW900-lv contracts in Cosmwasm.
 
 ## Contracts
 
 | Contract                                 | Reference                                                                                         | Description                                                                    |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| [`ve-token`](./contracts/ve-token)         | [doc](./contracts/ve-token)   | ve token implementation which allows users to lock up their own tokens as a sign of commitment                   |
+| [`cw900-lv`](./contracts/cw900-lv)         | [doc](./contracts/cw900-lv)   | ve token implementation which allows users to lock up their own tokens as a sign of commitment                   |
 | [`fee-distributor`](./contracts/fee-distributor)     | [doc](./contracts/fee-distributor) | Accumulates protocol fees and distributes them prorata to ve token holders |
 | [`gov`](../contracts/gov)    | [doc](../contracts/gov) | Gov contract for on chain governance that reads from ve token balances for measuring voting power                                                   |
 
